@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="bard.plugins" default="all">
+
+    <path id="bardplugin.classpath">
+        <pathelement location="${basedir}/lib/bardplugin.jar"/>
+    </path>
+
+    <path id="jersey.classpath">
+        <fileset dir="${basedir}/lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="ainfo">
+        <path id="ainfo.classpath">
+            <path refid="bardplugin.classpath"/>
+            <path refid="jersey.classpath"/>
+        </path>
+
+        <antcall target="_compile.plugin">
+            <param name="plugin.dir" value="ainfo"/>
+            <reference refid="ainfo.classpath" torefid="plugin.classpath.refid"/>
+        </antcall>
+
+        <path id="plugin.war.libs">
+            <fileset file="lib/bardplugin.jar"/>
+        </path>
+
+        <antcall target="_war.plugin">
+            <param name="plugin.dir" value="ainfo"/>
+            <param name="war.name" value="bardplugin_ainfo.war"/>
+            <reference refid="plugin.war.libs"/>
+        </antcall>
+
+    </target>
+
+    <target name="csls">
+        <path id="csls.classpath">
+            <path refid="bardplugin.classpath"/>
+            <path refid="jersey.classpath"/>
+        </path>
+
+        <antcall target="_compile.plugin">
+            <param name="plugin.dir" value="csls"/>
+            <reference refid="csls.classpath" torefid="plugin.classpath.refid"/>
+        </antcall>
+
+        <path id="plugin.war.libs">
+            <fileset file="lib/bardplugin.jar"/>
+        </path>
+
+        <antcall target="_war.plugin">
+            <param name="plugin.dir" value="csls"/>
+            <param name="war.name" value="bardplugin_csls.war"/>
+            <reference refid="plugin.war.libs"/>
+        </antcall>
+    </target>
+
+    <target name="ssearch">
+        <path id="ssearch.classpath">
+            <path refid="bardplugin.classpath"/>
+            <path refid="jersey.classpath"/>
+            <fileset dir="${basedir}/ssearch/lib">
+                <include name="*.jar"/>
+            </fileset>
+        </path>
+        <antcall target="_compile.plugin">
+            <param name="plugin.dir" value="ssearch"/>
+            <reference refid="ssearch.classpath" torefid="plugin.classpath.refid"/>
+        </antcall>
+
+        <path id="plugin.war.libs">
+            <fileset file="lib/bardplugin.jar"/>
+            <fileset dir="ssearch/lib/" includes="*.jar"/>
+        </path>
+
+        <antcall target="_war.plugin">
+            <param name="plugin.dir" value="ssearch"/>
+            <param name="war.name" value="bardplugin_ssearch.war"/>
+            <reference refid="plugin.war.libs"/>
+        </antcall>
+    </target>
+
+    <target name="clean">
+        <antcall target="clean.plugin">
+            <param name="plugin.dir" value="ssearch"/>
+        </antcall>
+        <antcall target="clean.plugin">
+            <param name="plugin.dir" value="ainfo"/>
+        </antcall>
+        <antcall target="clean.plugin">
+            <param name="plugin.dir" value="csls"/>
+        </antcall>
+    </target>
+
+    <target name="all" depends="ainfo, ssearch, csls"/>
+
+    <!-- Generic compile and clean targets -->
+    <target name="_compile.plugin">
+        <mkdir dir="${plugin.dir}/build"/>
+        <javac destdir="${plugin.dir}/build" debug="yes" fork="true">
+            <classpath refid="plugin.classpath.refid"/>
+            <src path="${plugin.dir}/src"/>
+        </javac>
+    </target>
+
+    <target name="_war.plugin">
+        <property name="wartmpdir" value="${war.name}_tmp"/>
+        <mkdir dir="${plugin.dir}/deploy"/>
+        <mkdir dir="${wartmpdir}"/>
+        <copy todir="${wartmpdir}">
+            <path refid="plugin.war.libs"/>
+        </copy>
+        <zip destfile="${plugin.dir}/deploy/${war.name}">
+            <zipfileset dir="${plugin.dir}/web"/>
+            <zipfileset file="${plugin.dir}/web/WEB-INF/web.xml" prefix="WEB-INF"/>
+            <zipfileset dir="${plugin.dir}/build" prefix="WEB-INF/classes"/>
+            <zipfileset dir="${wartmpdir}" prefix="WEB-INF/lib"/>
+        </zip>
+        <delete dir="${wartmpdir}"/>
+    </target>
+
+    <target name="clean.plugin" description="cleanup module">
+        <delete dir="${plugin.dir}/build"/>
+        <delete dir="${plugin.dir}/deploy"/>
+    </target>
+
+
+    <!--
+    <target name="artifact.ainfo:war_" depends="init.artifacts, compile.module.ainfo"
+            description="Build &#39;ainfo:war &#39; artifact">
+        <property name="artifact.temp.output.ainfo:war_" value="${artifacts.temp.dir}/ainfo_war_"/>
+        <mkdir dir="${artifact.temp.output.ainfo:war_}"/>
+        <zip destfile="${temp.jar.path.bardplugin_ainfo.war}">
+            <zipfileset dir="${basedir}/ainfo/web"/>
+            <zipfileset file="${basedir}/ainfo/web/WEB-INF/web.xml" prefix="WEB-INF"/>
+            <zipfileset dir="${ainfo.output.dir}" prefix="WEB-INF/classes"/>
+            <zipfileset file="${basedir}/lib/bardplugin.jar" prefix="WEB-INF/lib"/>
+        </zip>
+        <copy file="${temp.jar.path.bardplugin_ainfo.war}"
+              tofile="${artifact.temp.output.ainfo:war_}/bardplugin_ainfo.war"/>
+    </target>
+
+
+    <target name="artifact.ssearch:war" depends="init.artifacts, compile.module.ssearch"
+            description="Build &#39;ssearch:war&#39; artifact">
+        <property name="artifact.temp.output.ssearch:war" value="${artifacts.temp.dir}/ssearch_war"/>
+        <mkdir dir="${artifact.temp.output.ssearch:war}"/>
+        <zip destfile="${temp.jar.path.bardplugin_ssearch.war}">
+            <zipfileset dir="${basedir}/ssearch/web"/>
+            <zipfileset file="${basedir}/ssearch/web/WEB-INF/web.xml" prefix="WEB-INF"/>
+            <zipfileset dir="${ssearch.output.dir}" prefix="WEB-INF/classes"/>
+            <zipfileset file="${basedir}/ssearch/lib/bard-structure-search.jar" prefix="WEB-INF/lib"/>
+            <zipfileset file="${basedir}/ssearch/lib/jchem.jar" prefix="WEB-INF/lib"/>
+            <zipfileset file="${basedir}/ssearch/lib/molrenderer.jar" prefix="WEB-INF/lib"/>
+            <zipfileset file="${basedir}/lib/bardplugin.jar" prefix="WEB-INF/lib"/>
+        </zip>
+        <copy file="${temp.jar.path.bardplugin_ssearch.war}"
+              tofile="${artifact.temp.output.ssearch:war}/bardplugin_ssearch.war"/>
+    </target>
+
+    <target name="build.all.artifacts" depends="artifact.ainfo:war_, artifact.csls:war, artifact.ssearch:war"
+            description="Build all artifacts">
+        <mkdir dir="${artifact.output.ainfo:war_}"/>
+        <copy todir="${artifact.output.ainfo:war_}">
+            <fileset dir="${artifact.temp.output.ainfo:war_}"/>
+        </copy>
+        <mkdir dir="${artifact.output.csls:war}"/>
+        <copy todir="${artifact.output.csls:war}">
+            <fileset dir="${artifact.temp.output.csls:war}"/>
+        </copy>
+        <mkdir dir="${artifact.output.ssearch:war}"/>
+        <copy todir="${artifact.output.ssearch:war}">
+            <fileset dir="${artifact.temp.output.ssearch:war}"/>
+        </copy>
+
+        <delete dir="${artifacts.temp.dir}"/>
+    </target>
+
+    <target name="all" depends="build.modules, build.all.artifacts" description="build all"/>
+    -->
+</project>
