@@ -29,7 +29,7 @@ import java.util.List;
  *
  * @author Rajarshi Guha
  */
-@Path("/ss")
+@Path("/ssearch")
 public class SSearch implements IPlugin {
     static final String VERSION = "1.0";
 
