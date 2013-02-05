@@ -4,7 +4,12 @@ import gov.nih.ncgc.bard.plugin.IPlugin;
 import gov.nih.ncgc.bard.rest.BARDConstants;
 import gov.nih.ncgc.bard.tools.Util;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.BufferedReader;
@@ -24,6 +29,18 @@ import java.util.List;
 @Path("/csls")
 public class CSLS implements IPlugin {
     private static final String VERSION = "1.0";
+
+    public CSLS() {
+
+    }
+
+    public CSLS(
+            @Context ServletConfig servletConfig,
+            @Context ServletContext servletContext,
+            @Context HttpServletRequest httpServletRequest,
+            @Context HttpHeaders headers) {
+        // use the args to access parameters etc
+    }
 
     /**
      * Get a description of the plugin.
