@@ -81,6 +81,32 @@
         </antcall>
     </target>
 
+    <target name="registry">
+        <path id="registry.classpath">
+            <path refid="bardplugin.classpath"/>
+            <path refid="jersey.classpath"/>
+            <fileset dir="${basedir}/registry/lib">
+                <include name="*.jar"/>
+            </fileset>
+        </path>
+        <antcall target="_compile.plugin">
+            <param name="plugin.dir" value="registry"/>
+            <reference refid="registry.classpath" torefid="plugin.classpath.refid"/>
+        </antcall>
+
+        <path id="plugin.war.libs">
+            <fileset file="lib/bardplugin.jar"/>
+            <fileset dir="registry/lib/" includes="jackson*.jar"/>
+        </path>
+
+        <antcall target="_war.plugin">
+            <param name="plugin.dir" value="registry"/>
+            <param name="war.name" value="bardplugin_registry.war"/>
+            <reference refid="plugin.war.libs"/>
+        </antcall>
+    </target>
+
+
     <target name="clean">
         <antcall target="clean.plugin">
             <param name="plugin.dir" value="ssearch"/>
