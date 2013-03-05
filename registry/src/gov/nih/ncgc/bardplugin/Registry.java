@@ -91,14 +91,19 @@ public class Registry extends HttpServlet implements ContainerServlet {
             String pluginRoot = path.split("_")[1];
 
             HttpClient client = new DefaultHttpClient();
-            String url = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/"+pluginRoot+"/_version";
+            String url = getInitParameter("tomcatHost") + path + "/" + pluginRoot + "/_version";
             HttpGet get = new HttpGet(url);
             HttpResponse response = client.execute(get);
-            BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-            String line = "";
-            String version = "";
-            while ((line = rd.readLine()) != null) {
-                version += line;
+            String version = null;
+            if (response.getStatusLine().getStatusCode() == 200) {
+                version = "";
+                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+                String line = "";
+                while ((line = rd.readLine()) != null) {
+                    version += line;
+                }
+            } else {
+                isRunning = false;
             }
 
             ObjectNode node = mapper.createObjectNode();
