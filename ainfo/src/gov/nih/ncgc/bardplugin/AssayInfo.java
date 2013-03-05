@@ -78,6 +78,8 @@ public class AssayInfo implements IPlugin {
      *
      * @return the plugin version
      */
+    @GET
+    @Path("/_version")
     public String getVersion() {
         return VERSION;
     }

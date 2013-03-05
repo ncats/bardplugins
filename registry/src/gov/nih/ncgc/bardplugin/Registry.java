@@ -91,15 +91,15 @@ public class Registry extends HttpServlet implements ContainerServlet {
             String pluginRoot = path.split("_")[1];
 
             HttpClient client = new DefaultHttpClient();
-            String url = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+"/"+path+"/"+pluginRoot+"/version";
+            String url = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/"+pluginRoot+"/_version";
             HttpGet get = new HttpGet(url);
             HttpResponse response = client.execute(get);
             BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
             String line = "";
+            String version = "";
             while ((line = rd.readLine()) != null) {
-                line += line;
+                version += line;
             }
-            String version = line;
 
             ObjectNode node = mapper.createObjectNode();
             node.put("path", "/plugins/" + pluginRoot);
