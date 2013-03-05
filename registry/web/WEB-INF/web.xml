@@ -19,7 +19,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>Registry</servlet-name>
-        <url-pattern>/list</url-pattern>
+        <url-pattern>/*</url-pattern>
     </servlet-mapping>
 
     <!--<servlet>-->

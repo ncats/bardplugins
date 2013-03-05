@@ -52,14 +52,14 @@ public class Registry extends HttpServlet implements ContainerServlet {
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response)
             throws IOException, ServletException {
-        String[] toks = request.getRequestURI().split("/");
-        String command = toks[toks.length - 1];
+
+        String command = request.getRequestURI();
         response.setContentType("text/plain; charset=UTF-8");
         PrintWriter writer = response.getWriter();
-        if (command.equals("list")) {
+        if (command.endsWith("/registry/list")) {
             response.setContentType("application/json");
             listPlugins(writer);
-        } else if (command.equals("") || command.equals("/")) {
+        } else if (command.endsWith("/registry")) {
             response.setContentType("text/plain");
             writer.println("BARD Plugin Registry");
         } else response.sendError(HttpServletResponse.SC_NOT_FOUND);
