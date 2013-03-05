@@ -4,12 +4,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.catalina.*;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 
@@ -58,7 +64,7 @@ public class Registry extends HttpServlet implements ContainerServlet {
         PrintWriter writer = response.getWriter();
         if (command.endsWith("/registry/list")) {
             response.setContentType("application/json");
-            listPlugins(writer);
+            listPlugins(writer, request);
         } else if (command.endsWith("/registry")) {
             response.setContentType("text/plain");
             writer.println("BARD Plugin Registry");
@@ -67,7 +73,7 @@ public class Registry extends HttpServlet implements ContainerServlet {
         writer.close();
     }
 
-    public void listPlugins(PrintWriter writer) throws IOException {
+    public void listPlugins(PrintWriter writer, HttpServletRequest request) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode anode = mapper.createArrayNode();
 
@@ -83,8 +89,21 @@ public class Registry extends HttpServlet implements ContainerServlet {
             if (path.equals("/bardplugin_registry")) continue;
 
             String pluginRoot = path.split("_")[1];
+
+            HttpClient client = new DefaultHttpClient();
+            String url = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+"/"+path+"/"+pluginRoot+"/version";
+            HttpGet get = new HttpGet(url);
+            HttpResponse response = client.execute(get);
+            BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+            String line = "";
+            while ((line = rd.readLine()) != null) {
+                line += line;
+            }
+            String version = line;
+
             ObjectNode node = mapper.createObjectNode();
             node.put("path", "/plugins/" + pluginRoot);
+            node.put("version", version);
             node.put("available", isRunning);
             anode.add(node);
         }

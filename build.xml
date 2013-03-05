@@ -96,7 +96,7 @@
 
         <path id="plugin.war.libs">
             <fileset file="lib/bardplugin.jar"/>
-            <fileset dir="registry/lib/" includes="jackson*.jar"/>
+            <fileset dir="registry/lib/" includes="*.jar" excludes="catalina*"/>
         </path>
 
         <antcall target="_war.plugin">
