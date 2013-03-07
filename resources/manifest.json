@@ -1,0 +1,58 @@
+{
+    "$schema": "http://json-schema.org/draft-03/schema",
+    "type": "object",	
+    "properties": {
+	"version" : {
+	    "type" : "number", 
+	    "required" : true
+	},
+	"title" : {
+	    "type" : "string", 
+	    "required" : true
+	},
+	"description" : {
+	    "type" : "string",
+	    "required" : true
+	},
+	"author" : {
+	    "type" : "string",
+	    "required" : true
+	},
+	"author,email" : {
+	    "type" : "string",
+	    "format" : "email", 
+	    "required" : true
+	},
+	"maintainer" : {
+	    "type" : "string",
+	    "required" : true
+	},
+	"maintainer.email" : {
+	    "type" : "string",
+	    "format" : "email", 
+	    "required" : true
+	},
+	"resources" : {
+	    "type" : "array",
+	    "required" : true,
+	    "minItems" : 1,
+	    "items" : [{
+		"type" : "object",
+		"properties" : {
+		    "path" : {"type":"string", "required":true},
+		    "mimetype" : {"type":"string", "required":true},
+		    "args" : {"type":"array", 
+			      "items" : [{
+				  "type" : "object",
+				  "properties" : {
+				      "arg" : {"type":"string", "required":true},
+				      "argtype" : {"type":"string","required":true,"enum":["string","number","integer","boolean","object","any"]}
+				  }
+			      }]
+			     }
+		}
+	    }]
+	}
+	
+    }
+}
