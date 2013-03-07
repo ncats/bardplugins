@@ -18,7 +18,7 @@
 	    "type" : "string",
 	    "required" : true
 	},
-	"author,email" : {
+	"authorEmail" : {
 	    "type" : "string",
 	    "format" : "email", 
 	    "required" : true
@@ -27,7 +27,7 @@
 	    "type" : "string",
 	    "required" : true
 	},
-	"maintainer.email" : {
+	"maintainerEmail" : {
 	    "type" : "string",
 	    "format" : "email", 
 	    "required" : true
