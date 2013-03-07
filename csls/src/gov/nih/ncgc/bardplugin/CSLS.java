@@ -102,7 +102,7 @@ public class CSLS implements IPlugin {
         pm.setAuthor("Rajarshi Guha");
         pm.setAuthorEmail("guhar@mail.nih.gov");
         pm.setMaintainer(pm.getAuthor());
-        pm.setMaintainerEmail(pm.getMaintainerEmail());
+        pm.setMaintainerEmail(pm.getAuthorEmail());
         pm.setTitle("Chemical Structure Lookup Service Wrapper");
         pm.setDescription("Uses the NCI CSLS service to convert a chemical name to a structure");
         pm.setVersion(VERSION);

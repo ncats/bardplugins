@@ -82,7 +82,7 @@ public class AssayInfo implements IPlugin {
         pm.setAuthor("Rajarshi Guha");
         pm.setAuthorEmail("guhar@mail.nih.gov");
         pm.setMaintainer(pm.getAuthor());
-        pm.setMaintainerEmail(pm.getMaintainerEmail());
+        pm.setMaintainerEmail(pm.getAuthorEmail());
         pm.setTitle("BARD Assay Information");
         pm.setDescription("A brief description will go here");
         pm.setVersion(VERSION);

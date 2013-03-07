@@ -228,7 +228,7 @@ public class SSearch implements IPlugin {
         pm.setAuthor("Rajarshi Guha");
         pm.setAuthorEmail("guhar@mail.nih.gov");
         pm.setMaintainer(pm.getAuthor());
-        pm.setMaintainerEmail(pm.getMaintainerEmail());
+        pm.setMaintainerEmail(pm.getAuthorEmail());
         pm.setTitle("Structure Search Plugin");
         pm.setDescription("Uses the BARD structure search service to perform similarity and substructure searches");
         pm.setVersion(VERSION);
