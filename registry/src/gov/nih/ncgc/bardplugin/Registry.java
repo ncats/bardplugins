@@ -1,5 +1,6 @@
 package gov.nih.ncgc.bardplugin;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -13,9 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 
@@ -91,23 +90,24 @@ public class Registry extends HttpServlet implements ContainerServlet {
             String pluginRoot = path.split("_")[1];
 
             HttpClient client = new DefaultHttpClient();
-            String url = getInitParameter("tomcatHost") + path + "/" + pluginRoot + "/_version";
+            String url = getInitParameter("tomcatHost") + path + "/" + pluginRoot + "/_manifest";
             HttpGet get = new HttpGet(url);
             HttpResponse response = client.execute(get);
+
             String version = null;
+            String title = null;
+
             if (response.getStatusLine().getStatusCode() == 200) {
-                version = "";
-                BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-                String line = "";
-                while ((line = rd.readLine()) != null) {
-                    version += line;
-                }
+                JsonNode manifestJson = mapper.readTree(response.getEntity().getContent());
+                version = manifestJson.get("version").asText();
+                title = manifestJson.get("title").asText();
             } else {
                 isRunning = false;
             }
 
             ObjectNode node = mapper.createObjectNode();
             node.put("path", "/plugins/" + pluginRoot);
+            node.put("title", title);
             node.put("version", version);
             node.put("available", isRunning);
             anode.add(node);
