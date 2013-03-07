@@ -41,6 +41,7 @@
 		"type" : "object",
 		"properties" : {
 		    "path" : {"type":"string", "required":true},
+		    "method" : {"enum":["GET","POST","PUT","DELETE"], "required":true},
 		    "mimetype" : {"type":"string", "required":true},
 		    "args" : {"type":"array", 
 			      "uniqueItems": true,
