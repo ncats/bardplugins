@@ -90,11 +90,13 @@ public class AssayInfo implements IPlugin {
         PluginManifest.PluginResource res1 = new PluginManifest.PluginResource();
         res1.setPath("/{aid}/title");
         res1.setMimetype("text/plain");
+        res1.setMethod("GET");
         res1.setArgs(new PluginManifest.PathArg[]{new PluginManifest.PathArg("aid", "integer")});
 
         PluginManifest.PluginResource res2 = new PluginManifest.PluginResource();
         res2.setPath("/{aid}/description");
         res2.setMimetype("text/plain");
+        res2.setMethod("GET");
         res2.setArgs(new PluginManifest.PathArg[]{new PluginManifest.PathArg("aid", "integer")});
 
         pm.setResources(new PluginManifest.PluginResource[]{res1, res2});

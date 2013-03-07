@@ -1,8 +1,7 @@
 package gov.nih.ncgc.bardplugin;
 
 import gov.nih.ncgc.bard.plugin.IPlugin;
-import gov.nih.ncgc.bard.rest.BARDConstants;
-import gov.nih.ncgc.bard.tools.Util;
+import gov.nih.ncgc.bard.plugin.PluginManifest;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -16,7 +15,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
-import java.util.List;
 
 /**
  * A BARD plugin whose main goal is to retrieve data from an external service.
@@ -28,7 +26,7 @@ import java.util.List;
  */
 @Path("/csls")
 public class CSLS implements IPlugin {
-    private static final String VERSION = "1.0";
+    private static final String VERSION = "1.1";
 
     public CSLS() {
 
@@ -84,44 +82,41 @@ public class CSLS implements IPlugin {
     /**
      * Get the manifest for this plugin.
      * <p/>
-     * This should be an XML document conforming
-     * to the plugin manifest specification described
-     * <a href="http://foo.bar">here</a>
+     * This should be an JSON document conforming
+     * to the <a href="https://github.com/ncatsdpiprobedev/bardplugins/blob/master/resources/manifest.json">plugin manifest schema</a>
+     * <p/>
+     * In the implementing class, this method should be annotated using
+     * <pre>
+     * @GET
+     * @Path("/_manifest")
+     * @Produces(MediaType.APPLICATION_JSON) </pre>
+     * where the annotations are from the <code>javax.ws.rs</code> hierarchy.
      *
-     * @return an XML document containing the plugin manifest
-     */
-    public String getManifest() {
-        return "";
-    }
-
-    /**
-     * Get the version for the plugin.
-     *
-     * @return the plugin version
+     * @return a JSON document containing the plugin manifest
      */
     @GET
-    @Path("/_version")
-    public String getVersion() {
-        return VERSION;
+    @Path("/_manifest")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getManifest() {
+        PluginManifest pm = new PluginManifest();
+        pm.setAuthor("Rajarshi Guha");
+        pm.setAuthorEmail("guhar@mail.nih.gov");
+        pm.setMaintainer(pm.getAuthor());
+        pm.setMaintainerEmail(pm.getMaintainerEmail());
+        pm.setTitle("Chemical Structure Lookup Service Wrapper");
+        pm.setDescription("Uses the NCI CSLS service to convert a chemical name to a structure");
+        pm.setVersion(VERSION);
+
+        PluginManifest.PluginResource res1 = new PluginManifest.PluginResource();
+        res1.setPath("/{term}");
+        res1.setMimetype("text/plain");
+        res1.setMethod("GET");
+        res1.setArgs(new PluginManifest.PathArg[]{new PluginManifest.PathArg("term", "string")});
+
+        pm.setResources(new PluginManifest.PluginResource[]{res1});
+
+        return pm.toJson();
     }
 
-    /**
-     * Get the REST resource paths for this plugin.
-     * <p/>
-     * The paths should omit the BARD prefix. Multiple paths
-     * can be returned (and should ideally be documented via the
-     * description, though this is currently not enforced).
-     * <p/>
-     * A plugin must return at least one resource path. If not
-     * it will fail the compliance checks
-     *
-     * @return an array of REST resource paths
-     */
-    public String[] getResourcePaths() {
-        List<String> paths = Util.getResourcePaths(this.getClass());
-        String[] ret = new String[paths.size()];
-        for (int i = 0; i < paths.size(); i++)
-            ret[i] = BARDConstants.API_BASE + paths.get(i);
-        return ret;
-    }
+
 }
