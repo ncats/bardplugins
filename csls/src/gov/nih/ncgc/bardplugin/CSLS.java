@@ -53,6 +53,13 @@ public class CSLS implements IPlugin {
     }
 
     @GET
+    @Path("/")
+    @Produces("text/plain")
+    public Response getDummyMessage() {
+        return Response.ok("Just a dummy resource", MediaType.TEXT_PLAIN).build();
+    }
+
+    @GET
     @Path("/{term}")
     @Produces("text/plain")
     public Response getTermFromCsls(@PathParam("term") String term) {
@@ -87,12 +94,12 @@ public class CSLS implements IPlugin {
      * <p/>
      * In the implementing class, this method should be annotated using
      * <pre>
+     *
+     * @return a JSON document containing the plugin manifest
      * @GET
      * @Path("/_manifest")
      * @Produces(MediaType.APPLICATION_JSON) </pre>
      * where the annotations are from the <code>javax.ws.rs</code> hierarchy.
-     *
-     * @return a JSON document containing the plugin manifest
      */
     @GET
     @Path("/_manifest")
@@ -113,7 +120,13 @@ public class CSLS implements IPlugin {
         res1.setMethod("GET");
         res1.setArgs(new PluginManifest.PathArg[]{new PluginManifest.PathArg("term", "string")});
 
-        pm.setResources(new PluginManifest.PluginResource[]{res1});
+        PluginManifest.PluginResource res2 = new PluginManifest.PluginResource();
+        res2.setPath("/");
+        res2.setMimetype("text/plain");
+        res2.setMethod("GET");
+        res2.setArgs(null);
+
+        pm.setResources(new PluginManifest.PluginResource[]{res1,res2});
 
         return pm.toJson();
     }
