@@ -81,6 +81,31 @@
         </antcall>
     </target>
 
+    <target name="smartcyp">
+        <path id="smartcyp.classpath">
+            <path refid="bardplugin.classpath"/>
+            <path refid="jersey.classpath"/>
+            <fileset dir="${basedir}/smartcyp/lib">
+                <include name="*.jar"/>
+            </fileset>
+        </path>
+        <antcall target="_compile.plugin">
+            <param name="plugin.dir" value="smartcyp"/>
+            <reference refid="smartcyp.classpath" torefid="plugin.classpath.refid"/>
+        </antcall>
+
+        <path id="plugin.war.libs">
+            <fileset file="lib/bardplugin.jar"/>
+            <fileset dir="smartcyp/lib/" includes="*.jar"/>
+        </path>
+
+        <antcall target="_war.plugin">
+            <param name="plugin.dir" value="smartcyp"/>
+            <param name="war.name" value="bardplugin_smartcyp.war"/>
+            <reference refid="plugin.war.libs"/>
+        </antcall>
+    </target>
+    
     <target name="registry">
         <path id="registry.classpath">
             <path refid="bardplugin.classpath"/>
