@@ -144,7 +144,7 @@
         </antcall>
     </target>
 
-    <target name="all" depends="ainfo, ssearch, csls"/>
+    <target name="all" depends="ainfo, ssearch, csls, smartcyp"/>
 
     <!-- Generic compile and clean targets -->
     <target name="_compile.plugin">
