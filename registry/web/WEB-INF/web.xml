@@ -18,7 +18,7 @@
         </init-param>
         <init-param>
             <param-name>tomcatHost</param-name>
-            <param-value>http://protease.nhgri.nih.gov:8095</param-value>
+            <param-value>http://carnot.ncats.nih.gov:8095</param-value>
         </init-param>
 
     </servlet>
