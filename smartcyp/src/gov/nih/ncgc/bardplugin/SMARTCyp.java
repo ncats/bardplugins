@@ -1,7 +1,11 @@
 package gov.nih.ncgc.bardplugin;
 
+import com.sun.jersey.api.NotFoundException;
+import gov.nih.ncgc.bard.entity.Compound;
+import gov.nih.ncgc.bard.entity.Substance;
 import gov.nih.ncgc.bard.plugin.IPlugin;
 import gov.nih.ncgc.bard.plugin.PluginManifest;
+import gov.nih.ncgc.bard.tools.DBUtils;
 import org.openscience.cdk.CDKConstants;
 import org.openscience.cdk.DefaultChemObjectBuilder;
 import org.openscience.cdk.MoleculeSet;
@@ -32,6 +36,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -59,24 +64,12 @@ public class SMARTCyp implements IPlugin {
     }
 
     @GET
-    @Produces("image/png")
+    @Produces(MediaType.TEXT_HTML)
     @Path("/{smiles}/summary")
     public Response getSmartCypSummary(@PathParam("smiles") String smiles) {
         try {
-            UUID uuid = UUID.randomUUID();
-            String fname = "/tmp/" + uuid.toString();
-            IAtomContainer iAtomContainer = process(smiles);
-            MoleculeSet mset = DefaultChemObjectBuilder.getInstance().newInstance(MoleculeSet.class);
-            mset.addAtomContainer(iAtomContainer);
-            WriteResultsAsChemDoodleHTML write = new WriteResultsAsChemDoodleHTML("", new String[]{}, "", fname);
-            write.writeHTML(mset);
-
-            BufferedReader reader = new BufferedReader(new FileReader(fname+".html"));
-            String line;
-            StringBuilder sb = new StringBuilder();
-            while ((line = reader.readLine()) != null) sb.append(line).append("\n");
-            (new File(fname+".html")).delete();
-            return Response.ok(sb.toString()).type(MediaType.TEXT_HTML_TYPE).build();
+            String page = getHtmlSummaryPage(smiles);
+            return Response.ok(page).type(MediaType.TEXT_HTML_TYPE).build();
         } catch (CDKException e) {
             throw new WebApplicationException(e, 500);
         } catch (CloneNotSupportedException e) {
@@ -86,6 +79,73 @@ public class SMARTCyp implements IPlugin {
         } catch (IOException e) {
             throw new WebApplicationException(e, 500);
         }
+    }
+
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    @Path("/cid/{cid}/summary")
+    public Response getSmartCypSummaryByCid(@PathParam("cid") Long cid) {
+        try {
+            DBUtils db = new DBUtils();
+            List<Compound> cmpds = db.getCompoundsByCid(cid);
+            if (cmpds == null || cmpds.size() == 0) throw new NotFoundException();
+            Compound cmpd = cmpds.get(0);
+            String page = getHtmlSummaryPage(cmpd.getSmiles());
+            db.closeConnection();
+            return Response.ok(page).type(MediaType.TEXT_HTML_TYPE).build();
+        } catch (CDKException e) {
+            throw new WebApplicationException(e, 500);
+        } catch (CloneNotSupportedException e) {
+            throw new WebApplicationException(e, 500);
+        } catch (FileNotFoundException e) {
+            throw new WebApplicationException(e, 500);
+        } catch (IOException e) {
+            throw new WebApplicationException(e, 500);
+        } catch (SQLException e) {
+            throw new WebApplicationException(e, 500);
+        }
+    }
+
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    @Path("/sid/{sid}/summary")
+    public Response getSmartCypSummaryBySid(@PathParam("sid") Long sid) {
+        try {
+            DBUtils db = new DBUtils();
+            Substance subst = db.getSubstanceBySid(sid);
+            if (subst == null) throw new NotFoundException();
+            String page = getHtmlSummaryPage(subst.getSmiles());
+            db.closeConnection();
+            return Response.ok(page).type(MediaType.TEXT_HTML_TYPE).build();
+        } catch (CDKException e) {
+            throw new WebApplicationException(e, 500);
+        } catch (CloneNotSupportedException e) {
+            throw new WebApplicationException(e, 500);
+        } catch (FileNotFoundException e) {
+            throw new WebApplicationException(e, 500);
+        } catch (IOException e) {
+            throw new WebApplicationException(e, 500);
+        } catch (SQLException e) {
+            throw new WebApplicationException(e, 500);
+        }
+    }
+
+
+    String getHtmlSummaryPage(String smiles) throws CDKException, CloneNotSupportedException, IOException {
+        UUID uuid = UUID.randomUUID();
+        String fname = "/tmp/" + uuid.toString();
+        IAtomContainer iAtomContainer = process(smiles);
+        MoleculeSet mset = DefaultChemObjectBuilder.getInstance().newInstance(MoleculeSet.class);
+        mset.addAtomContainer(iAtomContainer);
+        WriteResultsAsChemDoodleHTML write = new WriteResultsAsChemDoodleHTML("", new String[]{}, "", fname);
+        write.writeHTML(mset);
+
+        BufferedReader reader = new BufferedReader(new FileReader(fname + ".html"));
+        String line;
+        StringBuilder sb = new StringBuilder();
+        while ((line = reader.readLine()) != null) sb.append(line).append("\n");
+        (new File(fname + ".html")).delete();
+        return sb.toString();
     }
 
 
@@ -208,7 +268,19 @@ public class SMARTCyp implements IPlugin {
         res1.setMethod("GET");
         res1.setArgs(new PluginManifest.PathArg[]{new PluginManifest.PathArg("smiles", "string")});
 
-        pm.setResources(new PluginManifest.PluginResource[]{res1});
+        PluginManifest.PluginResource res2 = new PluginManifest.PluginResource();
+        res2.setPath("/cid/{cid}/summary");
+        res2.setMimetype("text/html");
+        res2.setMethod("GET");
+        res2.setArgs(new PluginManifest.PathArg[]{new PluginManifest.PathArg("cid", "number")});
+
+        PluginManifest.PluginResource res3 = new PluginManifest.PluginResource();
+        res3.setPath("/sid/{sid}/summary");
+        res3.setMimetype("text/html");
+        res3.setMethod("GET");
+        res3.setArgs(new PluginManifest.PathArg[]{new PluginManifest.PathArg("sid", "number")});
+
+        pm.setResources(new PluginManifest.PluginResource[]{res1, res2, res3});
 
         return pm.toJson();
     }
