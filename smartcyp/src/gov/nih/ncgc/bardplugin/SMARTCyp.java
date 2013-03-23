@@ -9,6 +9,7 @@ import gov.nih.ncgc.bard.entity.Compound;
 import gov.nih.ncgc.bard.entity.Substance;
 import gov.nih.ncgc.bard.plugin.IPlugin;
 import gov.nih.ncgc.bard.plugin.PluginManifest;
+import gov.nih.ncgc.bard.rest.BadRequestException;
 import gov.nih.ncgc.bard.tools.DBUtils;
 import org.openscience.cdk.*;
 import org.openscience.cdk.aromaticity.CDKHueckelAromaticityDetector;
@@ -56,108 +57,39 @@ public class SMARTCyp implements IPlugin {
                 " for the isoform 2C9 (CYP2C9) and isoform 2D6 (CYP2D6) are included from version 2.1. CYP3A4, CYP2D6, and CYP2C9 are " +
                 "the three of the most important enzymes in drug metabolism since they are involved in the metabolism of more than half " +
                 "of the drugs used today.\n\nThis plugin is a simple wrapper around the original code published by Rydberg and co-workers. See " +
-                "http://www.farma.ku.dk/smartcyp/about.php for more details and the original code";
+                "http://www.farma.ku.dk/smartcyp/about.php for more details and the original code." +
+                "\nCurrently the plugin has two main resources: /summary and /. Each resource can take one of three query parameters, namely" +
+                " smiles, cid or sid to indicate the calculation should be run on a SMILES string, a PubChem CID or a PubChem SID. Thus example" +
+                " URLs would include /summary?smiles=CCNCC or /summary?cid=2242 etc";
         return msg;
     }
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    @Path("/{smiles}/summary")
-    public Response getSmartCypSummary(@PathParam("smiles") String smiles) {
+    @Path("/summary")
+    public Response getSmartCypSummary(@QueryParam("smiles") String smiles,
+                                       @QueryParam("cid") Long cid,
+                                       @QueryParam("sid") Long sid) {
         try {
-            String page = getHtmlSummaryPage(smiles);
-            return Response.ok(page).type(MediaType.TEXT_HTML_TYPE).build();
-        } catch (CDKException e) {
-            throw new WebApplicationException(e, 500);
-        } catch (CloneNotSupportedException e) {
-            throw new WebApplicationException(e, 500);
-        } catch (FileNotFoundException e) {
-            throw new WebApplicationException(e, 500);
-        } catch (IOException e) {
-            throw new WebApplicationException(e, 500);
-        }
-    }
+            if (smiles == null && cid == null && sid == null)
+                throw new BadRequestException("Must specify query parameter: smiles, cid or sid");
+            String page = null;
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{smiles}")
-    public Response getSmartCypResults(@PathParam("smiles") String smiles) {
-        try {
-            JsonNode data = getResults(smiles);
-            ObjectMapper mapper = new ObjectMapper();
-            return Response.ok(mapper.writeValueAsString(data)).type(MediaType.APPLICATION_JSON).build();
-        } catch (CDKException e) {
-            throw new WebApplicationException(e, 500);
-        } catch (CloneNotSupportedException e) {
-            throw new WebApplicationException(e, 500);
-        } catch (FileNotFoundException e) {
-            throw new WebApplicationException(e, 500);
-        } catch (IOException e) {
-            throw new WebApplicationException(e, 500);
-        }
-    }
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/cid/{cid}")
-    public Response getSmartCypResultsByCid(@PathParam("cid") Long cid) {
-        try {
-            DBUtils db = new DBUtils();
-            List<Compound> cmpds = db.getCompoundsByCid(cid);
-            if (cmpds == null || cmpds.size() == 0) throw new NotFoundException();
-            db.closeConnection();
-            Compound cmpd = cmpds.get(0);
-            JsonNode data = getResults(cmpd.getSmiles());
-            ObjectMapper mapper = new ObjectMapper();
-            return Response.ok(mapper.writeValueAsString(data)).type(MediaType.APPLICATION_JSON).build();
-        } catch (CDKException e) {
-            throw new WebApplicationException(e, 500);
-        } catch (CloneNotSupportedException e) {
-            throw new WebApplicationException(e, 500);
-        } catch (FileNotFoundException e) {
-            throw new WebApplicationException(e, 500);
-        } catch (IOException e) {
-            throw new WebApplicationException(e, 500);
-        } catch (SQLException e) {
-            throw new WebApplicationException(e, 500);
-        }
-    }
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("/sid/{sid}")
-    public Response getSmartCypResultsBySid(@PathParam("sid") Long sid) {
-        try {
-            DBUtils db = new DBUtils();
-            Substance subst = db.getSubstanceBySid(sid);
-            if (subst == null) throw new NotFoundException();
-            db.closeConnection();
-            JsonNode data = getResults(subst.getSmiles());
-            ObjectMapper mapper = new ObjectMapper();
-            return Response.ok(mapper.writeValueAsString(data)).type(MediaType.APPLICATION_JSON).build();
-        } catch (CDKException e) {
-            throw new WebApplicationException(e, 500);
-        } catch (CloneNotSupportedException e) {
-            throw new WebApplicationException(e, 500);
-        } catch (FileNotFoundException e) {
-            throw new WebApplicationException(e, 500);
-        } catch (IOException e) {
-            throw new WebApplicationException(e, 500);
-        } catch (SQLException e) {
-            throw new WebApplicationException(e, 500);
-        }
-    }
-
-
-    @GET
-    @Produces(MediaType.TEXT_HTML)
-    @Path("/cid/{cid}/summary")
-    public Response getSmartCypSummaryByCid(@PathParam("cid") Long cid) {
-        try {
-            DBUtils db = new DBUtils();
-            List<Compound> cmpds = db.getCompoundsByCid(cid);
-            if (cmpds == null || cmpds.size() == 0) throw new NotFoundException();
-            Compound cmpd = cmpds.get(0);
-            String page = getHtmlSummaryPage(cmpd.getSmiles());
-            db.closeConnection();
+            if (smiles != null) page = getHtmlSummaryPage(smiles);
+            else if (cid != null) {
+                DBUtils db = new DBUtils();
+                List<Compound> cmpds = db.getCompoundsByCid(cid);
+                if (cmpds == null || cmpds.size() == 0) throw new NotFoundException();
+                Compound cmpd = cmpds.get(0);
+                page = getHtmlSummaryPage(cmpd.getSmiles());
+                db.closeConnection();
+            } else if (sid != null) {
+                DBUtils db = new DBUtils();
+                Substance subst = db.getSubstanceBySid(sid);
+                if (subst == null) throw new NotFoundException();
+                page = getHtmlSummaryPage(subst.getSmiles());
+                db.closeConnection();
+            }
             return Response.ok(page).type(MediaType.TEXT_HTML_TYPE).build();
         } catch (CDKException e) {
             throw new WebApplicationException(e, 500);
@@ -173,16 +105,33 @@ public class SMARTCyp implements IPlugin {
     }
 
     @GET
-    @Produces(MediaType.TEXT_HTML)
-    @Path("/sid/{sid}/summary")
-    public Response getSmartCypSummaryBySid(@PathParam("sid") Long sid) {
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/")
+    public Response getSmartCypResults(@QueryParam("smiles") String smiles,
+                                       @QueryParam("cid") Long cid,
+                                       @QueryParam("sid") Long sid) {
         try {
-            DBUtils db = new DBUtils();
-            Substance subst = db.getSubstanceBySid(sid);
-            if (subst == null) throw new NotFoundException();
-            String page = getHtmlSummaryPage(subst.getSmiles());
-            db.closeConnection();
-            return Response.ok(page).type(MediaType.TEXT_HTML_TYPE).build();
+            if (smiles == null && cid == null && sid == null)
+                throw new BadRequestException("Must specify query parameter: smiles, cid or sid");
+
+            JsonNode data = null;
+            if (smiles != null) data = getResults(smiles);
+            else if (cid != null) {
+                DBUtils db = new DBUtils();
+                List<Compound> cmpds = db.getCompoundsByCid(cid);
+                if (cmpds == null || cmpds.size() == 0) throw new NotFoundException();
+                db.closeConnection();
+                Compound cmpd = cmpds.get(0);
+                data = getResults(cmpd.getSmiles());
+            } else if (sid != null) {
+                DBUtils db = new DBUtils();
+                Substance subst = db.getSubstanceBySid(sid);
+                if (subst == null) throw new NotFoundException();
+                db.closeConnection();
+                data = getResults(subst.getSmiles());
+            }
+            ObjectMapper mapper = new ObjectMapper();
+            return Response.ok(mapper.writeValueAsString(data)).type(MediaType.APPLICATION_JSON).build();
         } catch (CDKException e) {
             throw new WebApplicationException(e, 500);
         } catch (CloneNotSupportedException e) {
@@ -195,7 +144,6 @@ public class SMARTCyp implements IPlugin {
             throw new WebApplicationException(e, 500);
         }
     }
-
 
     private JsonNode getResults(String smiles) throws CDKException, CloneNotSupportedException {
         ObjectMapper mapper = new ObjectMapper();
@@ -407,49 +355,18 @@ public class SMARTCyp implements IPlugin {
         pm.setVersion("1.1");
 
         PluginManifest.PluginResource res1 = new PluginManifest.PluginResource();
-        res1.setPath("/{smiles}/summary");
+        res1.setPath("/summary");
         res1.setMimetype("text/html");
         res1.setMethod("GET");
-        res1.setArgs(new PluginManifest.PathArg[]{new PluginManifest.PathArg("smiles", "string")});
-
-        PluginManifest.PluginResource res2 = new PluginManifest.PluginResource();
-        res2.setPath("/cid/{cid}/summary");
-        res2.setMimetype("text/html");
-        res2.setMethod("GET");
-        res2.setArgs(new PluginManifest.PathArg[]{new PluginManifest.PathArg("cid", "number")});
-
-        PluginManifest.PluginResource res3 = new PluginManifest.PluginResource();
-        res3.setPath("/sid/{sid}/summary");
-        res3.setMimetype("text/html");
-        res3.setMethod("GET");
-        res3.setArgs(new PluginManifest.PathArg[]{new PluginManifest.PathArg("sid", "number")});
 
         PluginManifest.PluginResource res4 = new PluginManifest.PluginResource();
-        res4.setPath("/{smiles}");
+        res4.setPath("/");
         res4.setMimetype("application/json");
         res4.setMethod("GET");
-        res4.setArgs(new PluginManifest.PathArg[]{new PluginManifest.PathArg("smiles", "string")});
 
-        PluginManifest.PluginResource res5 = new PluginManifest.PluginResource();
-        res5.setPath("/cid/{cid}");
-        res5.setMimetype("application/json");
-        res5.setMethod("GET");
-        res5.setArgs(new PluginManifest.PathArg[]{new PluginManifest.PathArg("cid", "number")});
-
-        PluginManifest.PluginResource res6 = new PluginManifest.PluginResource();
-        res6.setPath("/sid/{sid}");
-        res6.setMimetype("application/json");
-        res6.setMethod("GET");
-        res6.setArgs(new PluginManifest.PathArg[]{new PluginManifest.PathArg("sid", "number")});
-
-
-        pm.setResources(new PluginManifest.PluginResource[]{res1, res2, res3, res4, res5, res6});
+        pm.setResources(new PluginManifest.PluginResource[]{res1, res4});
 
         return pm.toJson();
     }
 
-    public static void main(String[] args) {
-        SMARTCyp s = new SMARTCyp();
-        s.getSmartCypSummary("CCCCNCCCC");
-    }
 }
