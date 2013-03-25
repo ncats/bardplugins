@@ -358,11 +358,21 @@ public class SMARTCyp implements IPlugin {
         res1.setPath("/summary");
         res1.setMimetype("text/html");
         res1.setMethod("GET");
+        res1.setArgs(new PluginManifest.PathArg[]{
+                new PluginManifest.PathArg("smiles", "string", "query"),
+                new PluginManifest.PathArg("cid", "number", "query"),
+                new PluginManifest.PathArg("sid", "number", "query")
+        });
 
         PluginManifest.PluginResource res4 = new PluginManifest.PluginResource();
         res4.setPath("/");
         res4.setMimetype("application/json");
         res4.setMethod("GET");
+        res4.setArgs(new PluginManifest.PathArg[]{
+                new PluginManifest.PathArg("smiles", "string", "query"),
+                new PluginManifest.PathArg("cid", "number", "query"),
+                new PluginManifest.PathArg("sid", "number", "query")
+        });
 
         pm.setResources(new PluginManifest.PluginResource[]{res1, res4});
 
