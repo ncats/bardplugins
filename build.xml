@@ -106,6 +106,32 @@
         </antcall>
     </target>
     
+    <target name="whichcyp">
+        <path id="whichcyp.classpath">
+            <path refid="bardplugin.classpath"/>
+            <path refid="jersey.classpath"/>
+            <fileset dir="${basedir}/whichcyp/lib">
+                <include name="*.jar"/>
+            </fileset>
+        </path>
+        <antcall target="_compile.plugin">
+            <param name="plugin.dir" value="whichcyp"/>
+            <reference refid="whichcyp.classpath" torefid="plugin.classpath.refid"/>
+        </antcall>
+
+        <path id="plugin.war.libs">
+            <fileset file="lib/bardplugin.jar"/>
+            <fileset dir="whichcyp/lib/" includes="*.jar"/>
+        </path>
+
+        <antcall target="_war.plugin">
+            <param name="plugin.dir" value="whichcyp"/>
+            <param name="war.name" value="bardplugin_whichcyp.war"/>
+            <reference refid="plugin.war.libs"/>
+        </antcall>
+    </target>
+
+
     <target name="registry">
         <path id="registry.classpath">
             <path refid="bardplugin.classpath"/>
@@ -142,9 +168,15 @@
         <antcall target="clean.plugin">
             <param name="plugin.dir" value="csls"/>
         </antcall>
+        <antcall target="clean.plugin">
+            <param name="plugin.dir" value="smartcyp"/>
+        </antcall>
+        <antcall target="clean.plugin">
+            <param name="plugin.dir" value="whichcyp"/>
+        </antcall>
     </target>
 
-    <target name="all" depends="ainfo, ssearch, csls, smartcyp"/>
+    <target name="all" depends="ainfo, ssearch, csls, smartcyp, whichcyp"/>
 
     <!-- Generic compile and clean targets -->
     <target name="_compile.plugin">
