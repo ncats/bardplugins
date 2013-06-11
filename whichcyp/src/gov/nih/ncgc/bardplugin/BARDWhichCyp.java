@@ -22,7 +22,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.*;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * @author Rajarshi Guha
@@ -49,10 +51,10 @@ public class BARDWhichCyp implements IPlugin {
                 "\n\nSee http://130.225.252.198/whichcyp/interpret.php?nomenu=1 " +
                 "for how to interpret the results." +
                 "\n\nThe JSON output is similar but not identical to the CSV output from the original tool. The response is a list of elements," +
-                "where each element consists of two maps, labeled 'predictions' and 'sensitivityWarnings'. The former is a map keyed on isoform " +
+                "where each element consists of two maps, labeled 'predictions' and 'applicability'. The former is a map keyed on isoform " +
                 " identifier and the value is true if the molecule is predicted to bind to that isoform, false otherwise. The latter is also a " +
-                " map keyed on isoform identifier and the value is true if the molecule is considered to be sufficiently dissimilar to the training" +
-                " set for that isoforms' model.";
+                " map keyed on isoform identifier and the value is true if the molecule is considered to be similar to the training" +
+                " set for that isoforms' model (and thus within the applicability domain), false otherwise.";
 
         return msg;
     }
@@ -264,7 +266,7 @@ public class BARDWhichCyp implements IPlugin {
             ObjectNode snode = mapper.createObjectNode();
             for (String isoform : new String[]{"1A2", "2C9", "2C19", "2D6", "3A4"})
                 snode.put(isoform, mol.getProperty("SensitivityWarning" + isoform.toLowerCase()).equals(1));
-            node.put("sensitivityWarnings", snode);
+            node.put("applicability", snode);
             molnodes.add(node);
         }
         return molnodes;
@@ -323,10 +325,10 @@ public class BARDWhichCyp implements IPlugin {
         });
 
         PluginManifest.PluginResource res2 = new PluginManifest.PluginResource();
-        res1.setPath("/summary");
-        res1.setMimetype("text/html");
-        res1.setMethod("POST");
-        res1.setArgs(new PluginManifest.PathArg[]{
+        res2.setPath("/summary");
+        res2.setMimetype("text/html");
+        res2.setMethod("POST");
+        res2.setArgs(new PluginManifest.PathArg[]{
                 new PluginManifest.PathArg("smiles", "string", "form"),
                 new PluginManifest.PathArg("cid", "string", "form"),
                 new PluginManifest.PathArg("sid", "string", "form")
@@ -344,10 +346,10 @@ public class BARDWhichCyp implements IPlugin {
         });
 
         PluginManifest.PluginResource res3 = new PluginManifest.PluginResource();
-        res4.setPath("/");
-        res4.setMimetype("application/json");
-        res4.setMethod("POST");
-        res4.setArgs(new PluginManifest.PathArg[]{
+        res3.setPath("/");
+        res3.setMimetype("application/json");
+        res3.setMethod("POST");
+        res3.setArgs(new PluginManifest.PathArg[]{
                 new PluginManifest.PathArg("smiles", "string", "form"),
                 new PluginManifest.PathArg("cid", "string", "form"),
                 new PluginManifest.PathArg("sid", "string", "form")
