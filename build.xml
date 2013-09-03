@@ -156,6 +156,30 @@
         </antcall>
     </target>
 
+    <target name="plugin">
+        <path id="plugin.classpath">
+            <path refid="bardplugin.classpath"/>
+            <path refid="jersey.classpath"/>
+            <fileset dir="${basedir}/plugin/lib">
+                <include name="*.jar"/>
+            </fileset>
+        </path>
+        <antcall target="_compile.plugin">
+            <param name="plugin.dir" value="plugin"/>
+            <reference refid="plugin.classpath" torefid="plugin.classpath.refid"/>
+        </antcall>
+
+        <path id="plugin.war.libs">
+            <fileset file="lib/bardplugin.jar"/>
+            <fileset dir="plugin/lib/" includes="*.jar"/>
+        </path>
+
+        <antcall target="_war.plugin">
+            <param name="plugin.dir" value="plugin"/>
+            <param name="war.name" value="bardplugin_plugin.war"/>
+            <reference refid="plugin.war.libs"/>
+        </antcall>
+    </target>
 
     <target name="registry">
         <path id="registry.classpath">
