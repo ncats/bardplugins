@@ -156,6 +156,31 @@
         </antcall>
     </target>
 
+    <target name="initdemo">
+        <path id="initdemo.classpath">
+            <path refid="bardplugin.classpath"/>
+            <path refid="jersey.classpath"/>
+            <fileset dir="${basedir}/initdemo/lib">
+                <include name="*.jar"/>
+            </fileset>
+        </path>
+        <antcall target="_compile.plugin">
+            <param name="plugin.dir" value="initdemo"/>
+            <reference refid="initdemo.classpath" torefid="plugin.classpath.refid"/>
+        </antcall>
+
+        <path id="plugin.war.libs">
+            <fileset file="lib/bardplugin.jar"/>
+            <fileset dir="initdemo/lib/" includes="*.jar"/>
+        </path>
+
+        <antcall target="_war.plugin">
+            <param name="plugin.dir" value="initdemo"/>
+            <param name="war.name" value="bardplugin_initdemo.war"/>
+            <reference refid="plugin.war.libs"/>
+        </antcall>
+    </target>
+    
     <target name="plugin">
         <path id="plugin.classpath">
             <path refid="bardplugin.classpath"/>
@@ -226,6 +251,10 @@
         <antcall target="clean.plugin">
             <param name="plugin.dir" value="protclass"/>
         </antcall>
+        <antcall target="clean.plugin">
+            <param name="plugin.dir" value="initdemo"/>
+        </antcall>
+
     </target>
 
     <target name="all" depends="ainfo, ssearch, csls, smartcyp, whichcyp, protclass"/>
