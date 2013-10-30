@@ -1,5 +1,8 @@
 package gov.nih.ncgc.bardplugin;
 
+import chemaxon.formats.MolFormatException;
+import chemaxon.formats.MolImporter;
+import chemaxon.struc.Molecule;
 import gov.nih.ncgc.bard.plugin.IPlugin;
 import gov.nih.ncgc.bard.plugin.PluginManifest;
 
@@ -36,6 +39,13 @@ public class InitDemo implements IPlugin, ServletContextListener {
     @Produces("text/plain")
     @Path("/res")
     public Response get() {
+        try {
+            Molecule molecule = MolImporter.importMol("C1=CC=CC=C1");
+            System.out.println(molecule);
+        } catch (MolFormatException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
         return Response.ok("Calling this URL multiple times should show ctorInitCounter increasing, but" +
                 " servletInitCount remaining at 1.\n" +
                 "servletInitCounter " + servletInitCounter + " ctorInitCounter " + ctorInitCounter,
