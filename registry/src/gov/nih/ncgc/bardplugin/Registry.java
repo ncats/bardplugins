@@ -90,9 +90,9 @@ public class Registry extends HttpServlet implements ContainerServlet {
 
             if (!path.startsWith("/bardplugin_")) continue;
             if (path.equals("/bardplugin_registry")) continue;
+            if (path.equals("/bardplugin_plugin")) continue;
 
             String pluginRoot = path.split("_")[1];
-            if (pluginRoot.equals("plugin")) continue;
 
             HttpClient client = new DefaultHttpClient();
             String url = getInitParameter("tomcatHost") + path + "/" + pluginRoot + "/_manifest";
