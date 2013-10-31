@@ -4,7 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.catalina.*;
+import org.apache.catalina.Container;
+import org.apache.catalina.ContainerServlet;
+import org.apache.catalina.Context;
+import org.apache.catalina.Host;
+import org.apache.catalina.Wrapper;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -88,6 +92,7 @@ public class Registry extends HttpServlet implements ContainerServlet {
             if (path.equals("/bardplugin_registry")) continue;
 
             String pluginRoot = path.split("_")[1];
+            if (pluginRoot.equals("plugin")) continue;
 
             HttpClient client = new DefaultHttpClient();
             String url = getInitParameter("tomcatHost") + path + "/" + pluginRoot + "/_manifest";
