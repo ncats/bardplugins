@@ -8,11 +8,20 @@
     <display-name>InitDemo Plugin Services</display-name>
     <distributable/>
 
+    <context-param>
+        <param-name>aContextParam</param-name>
+        <param-value>1</param-value>
+    </context-param>
+
     <servlet>
         <description>InitDemo Plugin Services</description>
         <display-name>InitDemo Plugin Services</display-name>
         <servlet-name>InitDemoPluginServletAdaptor</servlet-name>
         <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>aInitParam</param-name>
+            <param-value>2</param-value>
+        </init-param>
         <!-- this must always be after init-param !-->
         <load-on-startup>1</load-on-startup>
     </servlet>

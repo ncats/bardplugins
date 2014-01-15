@@ -77,6 +77,13 @@ public class InitDemo implements IPlugin, ServletContextListener {
     }
 
     public void contextInitialized(ServletContextEvent servletContextEvent) {
+
+        // accessing parameters from web.xml only works in this method if they
+        // are context params (webapp scope) and not if they are init-params (servlet scope)
+        String initParam = servletContextEvent.getServletContext().getInitParameter("aInitParam");
+        String contextParam = servletContextEvent.getServletContext().getInitParameter("aContextParam");
+        System.out.println("contextParam = " + contextParam);
+        System.out.println("initParam = " + initParam);
         System.out.println("contextInitialized() was called");
         servletInitCounter++;
     }
