@@ -50,7 +50,8 @@ public class ProteinClass implements IPlugin {
     public String getDescription() {
         return "This plugin returns pre-computed protein classifications based on Uniprot IDs. Currently, " +
                 "only the Panther classification system is provided, though others may become available in " +
-                "the future";
+                "the future. The Panther classes and their mappings to Uniprot IDs are maintained in an " +
+                "embedded H2 database bundled with this plugin.";
     }
 
 
@@ -132,7 +133,7 @@ public class ProteinClass implements IPlugin {
         pm.setMaintainerEmail("guhar@mail.nih.gov");
         pm.setTitle("ProtClass");
         pm.setDescription("Obtain protein class according to different classification schemes");
-        pm.setVersion("1.0");
+        pm.setVersion("1.1");
 
         PluginManifest.PluginResource res1 = new PluginManifest.PluginResource();
         res1.setPath("/{source}/{id}");
