@@ -8,6 +8,16 @@
     <display-name>WhichCyp Plugin Services</display-name>
     <distributable/>
 
+    <listener>
+        <listener-class>gov.nih.ncgc.bardplugin.ProteinClassInit</listener-class>
+    </listener>
+
+    <context-param>
+        <param-name>db.url</param-name>
+        <param-value>jdbc:h2:${catalina.home}/webapps/bardplugin_protclass/WEB-INF/pantherdb</param-value>
+    </context-param>
+
+
     <servlet>
         <description>WhichCyp Plugin Services</description>
         <display-name>WhichCyp Plugin Services</display-name>

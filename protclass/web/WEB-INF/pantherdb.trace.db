@@ -1,0 +1,158 @@
+01-26 12:26:41 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "INFORMATION_SCHEMA[*].IN_DOUBT INFORMATION_SCHEMA.LOCKS INFORMATION_SCHEMA.CATALOGS"; expected "INSERT, {"; SQL statement:
+INFORMATION_SCHEMA.IN_DOUBT INFORMATION_SCHEMA.LOCKS INFORMATION_SCHEMA.CATALOGS [42001-175]
+01-26 12:26:53 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "INFORMATION_SCHEMA[*].COLLATIONS"; expected "INSERT, {"; SQL statement:
+INFORMATION_SCHEMA.COLLATIONS [42001-175]
+01-26 12:27:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "INFORMATION_SCHEMA[*].ROLES"; expected "INSERT, {"; SQL statement:
+INFORMATION_SCHEMA.ROLES [42001-175]
+01-26 12:31:08 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Column "/Users/guhar/panther_class.csv" not found; SQL statement:
+create table panther_class ( pclass_id varchar(32) primary key, 
+node_code varchar(64), 
+node_level int(11), 
+class_name varchar(1024), 
+class_descr varchar(2048),
+updated timestamp
+) as select * from CSVREAD("/Users/guhar/panther_class.csv") [42122-175]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:332)
+	at org.h2.message.DbException.get(DbException.java:172)
+	at org.h2.message.DbException.get(DbException.java:149)
+	at org.h2.expression.ExpressionColumn.optimize(ExpressionColumn.java:144)
+	at org.h2.expression.Function.optimize(Function.java:1929)
+	at org.h2.table.FunctionTable.<init>(FunctionTable.java:51)
+	at org.h2.command.Parser.readTableFilter(Parser.java:1181)
+	at org.h2.command.Parser.parseSelectSimpleFromPart(Parser.java:1813)
+	at org.h2.command.Parser.parseSelectSimple(Parser.java:1921)
+	at org.h2.command.Parser.parseSelectSub(Parser.java:1807)
+	at org.h2.command.Parser.parseSelectUnion(Parser.java:1631)
+	at org.h2.command.Parser.parseSelect(Parser.java:1619)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:5662)
+	at org.h2.command.Parser.parseCreate(Parser.java:4003)
+	at org.h2.command.Parser.parsePrepared(Parser.java:343)
+	at org.h2.command.Parser.parse(Parser.java:298)
+	at org.h2.command.Parser.parse(Parser.java:270)
+	at org.h2.command.Parser.prepareCommand(Parser.java:235)
+	at org.h2.engine.Session.prepareLocal(Session.java:436)
+	at org.h2.engine.Session.prepareCommand(Session.java:379)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1138)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:168)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:156)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1321)
+	at org.h2.server.web.WebApp.query(WebApp.java:1010)
+	at org.h2.server.web.WebApp$1.next(WebApp.java:972)
+	at org.h2.server.web.WebApp$1.next(WebApp.java:959)
+	at org.h2.server.web.WebThread.process(WebThread.java:167)
+	at org.h2.server.web.WebThread.run(WebThread.java:94)
+	at java.lang.Thread.run(Thread.java:695)
+01-26 12:31:42 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "PANTHER_CLASS" already exists; SQL statement:
+create table panther_class ( pclass_id varchar(32) primary key, 
+node_code varchar(64), 
+node_level int(11), 
+class_name varchar(1024), 
+class_descr varchar(2048),
+updated timestamp
+) as select * from CSVREAD('/Users/guhar/panther_class.csv') [42101-175]
+01-26 12:31:46 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "PANTHER_CLASS" already exists; SQL statement:
+create table panther_class ( pclass_id varchar(32) primary key, 
+node_code varchar(64), 
+node_level int(11), 
+class_name varchar(1024), 
+class_descr varchar(2048),
+updated timestamp
+) as select * from CSVREAD('/Users/guhar/panther_class.csv') [42101-175]
+01-26 13:30:38 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: The object is already closed [90007-175]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:332)
+	at org.h2.message.DbException.get(DbException.java:172)
+	at org.h2.message.DbException.get(DbException.java:149)
+	at org.h2.message.DbException.get(DbException.java:138)
+	at org.h2.jdbc.JdbcConnection.checkClosed(JdbcConnection.java:1410)
+	at org.h2.jdbc.JdbcStatement.checkClosed(JdbcStatement.java:980)
+	at org.h2.jdbc.JdbcPreparedStatement.checkClosed(JdbcPreparedStatement.java:1574)
+	at org.h2.jdbc.JdbcStatement.checkClosed(JdbcStatement.java:954)
+	at org.h2.jdbc.JdbcResultSet.checkClosed(JdbcResultSet.java:3102)
+	at org.h2.jdbc.JdbcResultSet.next(JdbcResultSet.java:119)
+	at gov.nih.ncgc.bardplugin.ProteinClass.getProteinTargetsForPantherClassification(ProteinClass.java:201)
+	at gov.nih.ncgc.bardplugin.ProteinClass.getAccessionsForClassification(ProteinClass.java:115)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at com.sun.jersey.spi.container.JavaMethodInvokerFactory$1.invoke(JavaMethodInvokerFactory.java:60)
+	at com.sun.jersey.server.impl.model.method.dispatch.AbstractResourceMethodDispatchProvider$ResponseOutInvoker._dispatch(AbstractResourceMethodDispatchProvider.java:205)
+	at com.sun.jersey.server.impl.model.method.dispatch.ResourceJavaMethodDispatcher.dispatch(ResourceJavaMethodDispatcher.java:75)
+	at com.sun.jersey.server.impl.uri.rules.HttpMethodRule.accept(HttpMethodRule.java:288)
+	at com.sun.jersey.server.impl.uri.rules.RightHandPathRule.accept(RightHandPathRule.java:147)
+	at com.sun.jersey.server.impl.uri.rules.ResourceClassRule.accept(ResourceClassRule.java:108)
+	at com.sun.jersey.server.impl.uri.rules.RightHandPathRule.accept(RightHandPathRule.java:147)
+	at com.sun.jersey.server.impl.uri.rules.RootResourceClassesRule.accept(RootResourceClassesRule.java:84)
+	at com.sun.jersey.server.impl.application.WebApplicationImpl._handleRequest(WebApplicationImpl.java:1483)
+	at com.sun.jersey.server.impl.application.WebApplicationImpl._handleRequest(WebApplicationImpl.java:1414)
+	at com.sun.jersey.server.impl.application.WebApplicationImpl.handleRequest(WebApplicationImpl.java:1363)
+	at com.sun.jersey.server.impl.application.WebApplicationImpl.handleRequest(WebApplicationImpl.java:1353)
+	at com.sun.jersey.spi.container.servlet.WebComponent.service(WebComponent.java:414)
+	at com.sun.jersey.spi.container.servlet.ServletContainer.service(ServletContainer.java:537)
+	at com.sun.jersey.spi.container.servlet.ServletContainer.service(ServletContainer.java:708)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:717)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:290)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:206)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:233)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:191)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:127)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:103)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:109)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:293)
+	at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:861)
+	at org.apache.coyote.http11.Http11Protocol$Http11ConnectionHandler.process(Http11Protocol.java:606)
+	at org.apache.tomcat.util.net.JIoEndpoint$Worker.run(JIoEndpoint.java:489)
+	at java.lang.Thread.run(Thread.java:695)
+01-26 13:34:03 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: The object is already closed [90007-175]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:332)
+	at org.h2.message.DbException.get(DbException.java:172)
+	at org.h2.message.DbException.get(DbException.java:149)
+	at org.h2.message.DbException.get(DbException.java:138)
+	at org.h2.jdbc.JdbcConnection.checkClosed(JdbcConnection.java:1410)
+	at org.h2.jdbc.JdbcStatement.checkClosed(JdbcStatement.java:980)
+	at org.h2.jdbc.JdbcPreparedStatement.checkClosed(JdbcPreparedStatement.java:1574)
+	at org.h2.jdbc.JdbcStatement.checkClosed(JdbcStatement.java:954)
+	at org.h2.jdbc.JdbcResultSet.checkClosed(JdbcResultSet.java:3102)
+	at org.h2.jdbc.JdbcResultSet.next(JdbcResultSet.java:119)
+	at gov.nih.ncgc.bardplugin.ProteinClass.getProteinTargetsForPantherClassification(ProteinClass.java:201)
+	at gov.nih.ncgc.bardplugin.ProteinClass.getAccessionsForClassification(ProteinClass.java:115)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at com.sun.jersey.spi.container.JavaMethodInvokerFactory$1.invoke(JavaMethodInvokerFactory.java:60)
+	at com.sun.jersey.server.impl.model.method.dispatch.AbstractResourceMethodDispatchProvider$ResponseOutInvoker._dispatch(AbstractResourceMethodDispatchProvider.java:205)
+	at com.sun.jersey.server.impl.model.method.dispatch.ResourceJavaMethodDispatcher.dispatch(ResourceJavaMethodDispatcher.java:75)
+	at com.sun.jersey.server.impl.uri.rules.HttpMethodRule.accept(HttpMethodRule.java:288)
+	at com.sun.jersey.server.impl.uri.rules.RightHandPathRule.accept(RightHandPathRule.java:147)
+	at com.sun.jersey.server.impl.uri.rules.ResourceClassRule.accept(ResourceClassRule.java:108)
+	at com.sun.jersey.server.impl.uri.rules.RightHandPathRule.accept(RightHandPathRule.java:147)
+	at com.sun.jersey.server.impl.uri.rules.RootResourceClassesRule.accept(RootResourceClassesRule.java:84)
+	at com.sun.jersey.server.impl.application.WebApplicationImpl._handleRequest(WebApplicationImpl.java:1483)
+	at com.sun.jersey.server.impl.application.WebApplicationImpl._handleRequest(WebApplicationImpl.java:1414)
+	at com.sun.jersey.server.impl.application.WebApplicationImpl.handleRequest(WebApplicationImpl.java:1363)
+	at com.sun.jersey.server.impl.application.WebApplicationImpl.handleRequest(WebApplicationImpl.java:1353)
+	at com.sun.jersey.spi.container.servlet.WebComponent.service(WebComponent.java:414)
+	at com.sun.jersey.spi.container.servlet.ServletContainer.service(ServletContainer.java:537)
+	at com.sun.jersey.spi.container.servlet.ServletContainer.service(ServletContainer.java:708)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:717)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:290)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:206)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:233)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:191)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:127)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:103)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:109)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:293)
+	at org.apache.coyote.http11.Http11Processor.process(Http11Processor.java:861)
+	at org.apache.coyote.http11.Http11Protocol$Http11ConnectionHandler.process(Http11Protocol.java:606)
+	at org.apache.tomcat.util.net.JIoEndpoint$Worker.run(JIoEndpoint.java:489)
+	at java.lang.Thread.run(Thread.java:695)

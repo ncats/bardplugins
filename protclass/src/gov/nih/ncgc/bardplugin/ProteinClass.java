@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.jersey.api.NotFoundException;
+import gov.nih.ncgc.bard.entity.PantherClassification;
 import gov.nih.ncgc.bard.entity.ProteinTarget;
 import gov.nih.ncgc.bard.entity.TargetClassification;
 import gov.nih.ncgc.bard.plugin.IPlugin;
@@ -11,6 +12,7 @@ import gov.nih.ncgc.bard.plugin.PluginManifest;
 import gov.nih.ncgc.bard.tools.DBUtils;
 import gov.nih.ncgc.bard.tools.Util;
 
+import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -19,10 +21,15 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,6 +37,9 @@ import java.util.List;
  */
 @Path("/protclass")
 public class ProteinClass implements IPlugin {
+
+    @Context
+    ServletContext servletContext;
 
     public ProteinClass() {
     }
@@ -52,11 +62,9 @@ public class ProteinClass implements IPlugin {
         if (id == null)
             throw new WebApplicationException(new Exception("Must specify a Uniprot ID"), 400);
         List<TargetClassification> classes = null;
-        DBUtils db = new DBUtils();
         if (source.toLowerCase().equals("panther")) {
-            classes = db.getPantherClassesForAccession(id);
+            classes = getPantherClasses(id);
         }
-        db.closeConnection();
         if (classes == null)
             throw new NotFoundException("No classifications for " + id + " in the " + source + " hierarchy");
 
@@ -85,7 +93,7 @@ public class ProteinClass implements IPlugin {
         for (String acc : laccs) {
             List<TargetClassification> classes = null;
             if (source.toLowerCase().equals("panther")) {
-                classes = db.getPantherClassesForAccession(acc.trim());
+                classes = getPantherClasses(acc.trim());
             }
             JsonNode classNodes = mapper.valueToTree(classes);
             node.put(acc, classNodes);
@@ -99,12 +107,12 @@ public class ProteinClass implements IPlugin {
     @Path("/classification/{source}/{clsid}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAccessionsForClassification(@PathParam("source") String source,
-                                                   @PathParam("clsid") String clsid) 
+                                                   @PathParam("clsid") String clsid)
             throws SQLException, IOException {
         List<ProteinTarget> targets = null;
         DBUtils db = new DBUtils();
         if (source.toLowerCase().equals("panther")) {
-            targets = db.getProteinTargetsForPantherClassification(clsid);
+            targets = getProteinTargetsForPantherClassification(clsid);
         }
         db.closeConnection();
         if (targets == null)
@@ -158,4 +166,47 @@ public class ProteinClass implements IPlugin {
         return pm.toJson();
     }
 
+
+    private List<TargetClassification> getPantherClasses(String uniprotId) throws SQLException {
+        Connection conn = (Connection) servletContext.getAttribute("connection");
+        PreparedStatement pst = conn.prepareStatement("select b.* from panther_uniprot_map a, panther_class b where a.accession = ? and a.pclass_id = b.pclass_id order by node_level");
+        try {
+            pst.setString(1, uniprotId);
+            ResultSet rs = pst.executeQuery();
+            List<TargetClassification> classes = new ArrayList<TargetClassification>();
+            while (rs.next()) {
+                PantherClassification pc = new PantherClassification();
+                pc.setDescription(rs.getString("class_descr"));
+                pc.setName(rs.getString("class_name"));
+                pc.setId(rs.getString("pclass_id"));
+                pc.setLevelIdentifier(rs.getString("node_code"));
+                pc.setNodeLevel(rs.getInt("node_level"));
+                classes.add(pc);
+            }
+            rs.close();
+            return classes;
+        } finally {
+            if (pst != null) pst.close();
+        }
+    }
+
+    private List<ProteinTarget> getProteinTargetsForPantherClassification(String classId) throws SQLException {
+        Connection conn = (Connection) servletContext.getAttribute("connection");
+        PreparedStatement pst = conn.prepareStatement("select distinct a.accession from panther_uniprot_map a where a.pclass_id = ?");
+        try {
+            DBUtils db = new DBUtils();
+            pst.setString(1, classId);
+            ResultSet rs = pst.executeQuery();
+            List<ProteinTarget> targets = new ArrayList<ProteinTarget>();
+            while (rs.next()) {
+                String acc = rs.getString(1);
+                targets.add(db.getProteinTargetByAccession(acc));
+            }
+            rs.close();
+            db.closeConnection();
+            return targets;
+        } finally {
+            if (pst != null) pst.close();
+        }
+    }
 }
